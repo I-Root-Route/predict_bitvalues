@@ -82,7 +82,7 @@ if __name__ == "__main__":
     y_normalized = torch.FloatTensor(y_normalized).view(-1)
     full_data = sequence_creator(y_normalized,window_size) #return -> [(直近のデータ,正解ラベル)...]
 
-    if not os.path.isfile("/files/lstm_model.pth"):
+    if not os.path.isfile("files/lstm_model.pth"):
         for epoch in range(epochs):
             for sequence_in, y_train in full_data:
                 
