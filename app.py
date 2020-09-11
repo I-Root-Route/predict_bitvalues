@@ -1,10 +1,9 @@
 import os
 from datetime import datetime, date, timedelta
-import json
-from flask import Flask, jsonify, render_template
 import torch
+import json
 import torch.nn as nn
-#import seaborn as sns
+import seaborn as sns
 import numpy as np
 import pandas as pd
 from sklearn import datasets
@@ -55,10 +54,8 @@ class LSTM_BITCOIN(nn.Module):
 
 if __name__ == "__main__":
 
-    df = pd.read_csv('crypto_data2.csv',index_col=0)    #日付をインデックス化
+    df = pd.read_csv('files/crypto_data2.csv',index_col=0)    #日付をインデックス化
     df = df["price_close"]                              #price_closeのみの予測
-    #df.plot(figsize=(15,6),color="red")
-    #plt.show()
     df.index = pd.to_datetime(df.index)
     y = df.values.astype(float)
 
@@ -69,7 +66,7 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001) #lr -> 学習率
 
     epochs = 100
-    window_size = 7
+    window_size = 90
     loss_list = []
     loss_temp = 0 #誤差の初期化
 
@@ -97,16 +94,16 @@ if __name__ == "__main__":
                 loss.backward()
                 optimizer.step()
                 
-            if((epoch+1) % 10 ==0):
+            if((epoch+1) % 5 ==0):
                 loss_list.append(loss_temp.item()/(10*len(full_data)))
                 print(f'Epoch {epoch+1} Loss {loss_temp.item()/(10*len(full_data))}')
                 loss_temp = 0
                 
-        torch.save(model.state_dict(), "lstm_model.pth")
+        torch.save(model.state_dict(), "files/lstm_model.pth")
 
     else:
-        model.load_state_dict(torch.load("lstm_model.pth"))
-        upcoming_future = 7
+        model.load_state_dict(torch.load("files/lstm_model.pth"))
+        upcoming_future = window_size
         predictions = y_normalized[-window_size:].tolist()
 
         today = datetime.datetime.today()
@@ -124,7 +121,7 @@ if __name__ == "__main__":
                     
         predictions_y = scaler.inverse_transform(np.array(predictions).reshape(-1,1))
         x = np.arange(string_today, string_a_week_later, dtype='datetime64[D]').astype('datetime64[D]')
-        """
+
         sns.set()
         plt.figure(figsize = (12,4))
         plt.title("BTC/JPY")
@@ -133,22 +130,17 @@ if __name__ == "__main__":
         plt.plot(df)
         plt.plot(x,predictions_y[-window_size:])
         plt.show()
-        """
-        print(predictions_y[-window_size:])
 
-        app = Flask(__name__)
-
-        response = {}
-        datelist = []
-        for i in range(upcoming_future):
-            datelist.append(datetime.datetime.strftime(today + timedelta(days=i), '%Y-%m-%d'))
-
-        @app.route('/', methods=['GET'])
-        def predicted_data():
-            for i, date in enumerate(datelist):
-                response[date] = predictions_y[-window_size:][i][0]
-            
-            return jsonify(response), 200
-        app.run(debug=True)
-
+        
+    response = {}
+    datalist = []
+    for i in range(upcoming_future):
+        datalist.append(datetime.datetime.strftime(today + timedelta(days=i), '%Y-%m-%d'))
+    
+    for i, date in enumerate(datalist):
+        response[date] = predictions_y[-window_size:][i][0]
+    
+    savepath = 'predicted_data.json'
+    with open(savepath, 'w') as outfile:
+        json.dump(response, outfile, indent=2)
         
