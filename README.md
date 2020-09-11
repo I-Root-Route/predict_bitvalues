@@ -1,3 +1,6 @@
+# URL
+https://github.com/I-Root-Route/predict_bitvalues
+
 # お使いのPCにpython環境をインストール
 https://techacademy.jp/magazine/15571
 
