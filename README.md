@@ -1,4 +1,4 @@
-# URL
+# 本URL
 https://github.com/I-Root-Route/predict_bitvalues
 
 # お使いのPCにpython環境をインストール
