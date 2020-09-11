@@ -5,5 +5,5 @@ https://techacademy.jp/magazine/15571
 ターミナル(コマンドプロンプト)で、pip install -r requirements.txtと打ち、Enter
 
 # 実行
-predict_bitvalues直下で、ターミナルに、python predict_bitvalues.pyと打ち、Enter
+コードがあるディレクトリ直下で、ターミナルに、python predict_bitvalues.pyと打ち、Enter
 
